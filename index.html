@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KOL Directory Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Customizing Tailwind theme to add the new colors
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-dark': '#1a0f2a',
+                        'brand-med': '#2a1a42',
+                        'brand-light': '#3c2c5c',
+                        'brand-accent-purple': '#8a42f5',
+                        'brand-accent-pink': '#e539f5',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        #kol-modal {
+            transition: opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="bg-brand-dark text-gray-200">
+
+    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
+        <!-- Header Section -->
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-bold text-white">KOL Directory Search</h1>
+            <p class="mt-2 text-gray-400">Find a Key Opinion Leader (KOL) from our curated list.</p>
+        </div>
+
+        <!-- Search Section -->
+        <div class="bg-brand-med p-6 rounded-xl shadow-lg border border-brand-light">
+            <div>
+                <label for="search-input" class="block text-sm font-medium text-gray-300 mb-2">Enter name</label>
+                <input type="text" id="search-input" placeholder="Enter name, handle, etc." class="w-full px-4 py-2 bg-brand-light border border-brand-accent-purple rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-accent-pink focus:border-brand-accent-pink transition">
+            </div>
+        </div>
+
+        <!-- Results Table Section (Initially Hidden) -->
+        <div id="results-container" class="mt-8 flow-root hidden">
+            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
+                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
+                    <div class="overflow-hidden shadow-lg ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+                        <table class="min-w-full divide-y divide-brand-light">
+                            <thead class="bg-brand-med">
+                                <tr>
+                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Name</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Category</th>
+                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
+                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
+                                        <span class="sr-only">Details</span>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody id="results-body" class="divide-y divide-brand-light bg-brand-med">
+                                <!-- JS will populate this -->
+                            </tbody>
+                        </table>
+                         <div id="no-results" class="hidden text-center py-12 px-6 bg-brand-med">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                            </svg>
+                            <h3 class="mt-2 text-lg font-medium text-white">No results found</h3>
+                            <p class="mt-1 text-sm text-gray-400">Your search did not match any KOLs. Try searching for something else.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- KOL Details Modal -->
+    <div id="kol-modal" class="fixed inset-0 bg-black bg-opacity-70 overflow-y-auto h-full w-full hidden z-50">
+        <div class="relative top-20 mx-auto p-5 border border-brand-accent-purple w-full max-w-md shadow-lg rounded-xl bg-brand-med">
+            <div class="mt-3 text-center">
+                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-brand-light mb-4">
+                    <svg class="h-6 w-6 text-brand-accent-pink" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                </div>
+                <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">KOL Details</h3>
+                <div class="mt-4 px-7 py-3">
+                    <div id="modal-content" class="text-sm text-gray-300 space-y-2 text-left">
+                        <!-- JS will populate this -->
+                    </div>
+                </div>
+                <div class="items-center px-4 py-3">
+                    <button id="modal-close-btn" class="px-4 py-2 bg-brand-accent-pink text-white font-semibold rounded-lg hover:bg-opacity-80 w-full transition">
+                        Close
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // --- DATA ---
+        const rawData = `_CryptoManny,_Richard Teng,_traderkane,OxBclub,OxBender,OxDonald Gao,OxHustlepedia,Oxjaypeg,Oxreflection,OxRoronoa Zoro,Oxshowmaker,Ox Thoor,OxWenMoon,10_FORTYONE,100trillion USD,1cryptomama,5_0Trading,52kskew,5starIDO,8R4NDO,aakaashyadav,Adithia Kusno,alanrog3,alchemy_invest,Alejandro_XBT,AlemzadehC,ali_charts,alistairmilne,alphatrends,alshami_crypto,Altcoin_Gold,AltcoinDailyio,Altcoin Gordon,AltcoinPsycho,altcoinrookie,AltcoinSherpa,AltCryptoGems,alts_architect,Anbessa100,Andrea Capellin4,andreswifitv,AndrewCryptoHQ,Andy_Cryptoo,ardizor,ashcryptoreal,Assets Norris,Axel bitblaze69,balajis,bbands,BCBacker,beeteeceeee,bentodar,BergMilton,bgarlinghouse,BigCheds,Bitboy_Crypto,BitQua,blackbeardXBT,blackwidowbtc,blazing420s,Bleeding_Crypto,Bleeves Crypto,blknoiz06,BlockBonnieC,blockchainedbb,BlockChainGods_,BlocksNThoughts,Bluntz_Capital,Bobby_1111888,BobLoukas,Boring Sleuth,boxmining,bradmillscan,BrainBroCrypto,brandank_cr,bravosresearch,Breedlove22,brian_armstrong,BrianDEvans,BTC_Archive,btc_charlie,BTC_JackSparrow,btcoinmag,BudhilVyas,bull_bnb,BullChain,BullChinaCN,Bullrun_Gravano,bycoinhunter,ByzGeneral,Cameronfous,cantonmeow,CaptToblerone,CarpeNoctom,Castillo Trading,CathieDWood,CC2Ventures,ChainLink God,charliebilello,ChicoCrypto,Chifoi Cristian,chirocrypto,chrono_chartist,Coachkcrypto,coffeebreak_YT,coinbureau,coinmamba,coinmuhendisim,CoinnCorner,Coins_Kid,CoinWOfficial,Cold BloodShill,conorfkenny,cousincrypt0,craigscoinpurse,CredibleCrypto,Croesus_BTC,CrypNuevo,Cryptech_Sam,crypto_banter,crypto_birb,crypto_bitlord7,Crypto_Ed_NL,Crypto_Educator,crypto_linn,Cryptoamanclub,CryptoBusy,CryptoCapo_,CryptoCred,CryptoDaku_,CryptoDiffer,CryptoDonAlt,CryptoErwinNL,CryptoFNewsDE,CryptoGenzo,CryptoGirlNova,CryptoGodJohn,cryptojack,CryptoKaduna,CryptoKaleo,CryptoKans,CryptoKingKeyur,CryptoLycus,CryptoLyonnais,cryptomanran,CryptoMichNL,cryptomocho,CryptoNagato,CryptoNewsXBT,CryptooELITES,CryptoPoseidonn,cryptorecruitr,CryptoReviewing,CryptoRyan17,CryptosBatman,CryptoShadowOff,cryptoskullx,CryptosR_Us,Crypto Tea_,Crypto Thannos,Crypto Tony,cryptotrader85,CryptoVikings07,CryptoVonDoom,CryptoWendyO,CryptoWizardd,CryptoWorldJosh,cyberspace2140,cz_binance,Daan Crypto,daaniyaan,DaCryptoAce,DaCryptoGeneral,DailyCrypto Trad,DaSheriffCrypto,DaveCrypto91,David_Tracey,DavidCoxRJ,DavidOnCrypto_,Davincij 15,davthewave,DeanChristians,Debussy 100,decodejar,DefiSquared,DegenSpartan,devchart,Diditaihuttu,DMTLAND_,Doctor_Magic_,docXBT,DrProfitCrypto,DylanLeClair_,effervescence_o,el_crypto_prof,eliz883,elliotrades,EmperorBTC,ericcryptoman,EricTrump,ero_crypto,EvanLuthra,evolveweb3,ExitLiqCapital,expert_kripto,FadiD86,fewseethis,financial index,follis,FossGregfoss,FusionptCapital,fwielanier,gainzy222,gandalfcryptto,ganymede_0x,garyblack00,GCRClassic,gem_detecter,gem_insider,GertvanLagen,GhostMMXM,giantcutie777,GiganticRebirth,Globalflows,GoingParabolic,Govanisher,GRDecter,hackapreneur,hc_trades,healthy_pockets,HenrikZeberg,HerroCrypto,High StakesCap,House OfCrypto3,Hsaka Trades,i_am_jackis,iam_lil_ben,lamRamen Panda,lamZerolka,ibcig,Iced Knife,Iced Trader,IDO_Insights,immrape,ImNot The Wolf,inancsalman,Income Sharks,inmortalcrypto,intocryptoverse,intuitio_,invest_answers,IvanOnTech,JA_Maartun,jackminingbtc,Jake_Wujastyk,JasonCryptoFTW,jasonpizzino,jaydee_757,JC_Investment,JesusChris00,jimcramer,JoeCarlasare,JoelKatz,JoeParys,JohalMiles,JohnnyZcash,joshistrading,JRNYcrypto,Justin BennettFX,justinsuntron,KAPOTHEGOAT01,karl_0x,Kellykellam,KenCharts,KevinSvenson_,ki_young_ju,kiantrades,KILA_WHALE,Kingpincrypto12,Kirti_Azad_,KmanuS88,kmoney_69,KongBTC,KoroushAK,KPGlobal Charts,kriptomete_,KrownCryptoCave,Kryptolnsider1,ksicrypto,Kucoinmaster777,kwantxbt,kyle_chasse,kyledoops,LadyofCrypto1,Lady TraderRa,langeriuseth,LayerAlpha,LeaksBlockchain,Leonardo_CMNT,level941,Lina_Trades,Imkfun,LomahCrypto,London RealTV,lookonchain,LordDurden,LowCapB,LPCapitalChi,lukebelmar,MacnBTC,MacroCharts,MacroCRG,MarioNawfal,MariusCrypto,mark_cullen,MarketMobsterUK,MarketsInternal,MartiniGuyYT,martypartymusic,MartyXBT,MatthewHyland_,mericfi,Merlijn Trader,mesgo_,michaeljburry,MichaelSuppo,MichaelXBT,milesdeutscher,Mill_Mentor,misterrcrypto,mithcoons,MMCrypto,mominsaqib,Moneytaur_,Moon Overlord,mobymedia,Mr_Derivatives,Mrbullemmy,MrX_Crypto,MuroCrypto,murtaza,MustStopMurad,Namzes_G,Nebraskangooner,Negentropic_,Nekoz Tek,nftboi_,NikkiSixx_7,notEezzy,Nstr_tj,NukeCapital,NXS_Blade Runner,olvelez007,Osemka8,ourcryptotalk,Overdose_Al,PABL0_1989,panamaXBT,PARABOLIT,ParrotCapital,paulbarron,Pentosh 1,PeterSchiff,PhilakoneCrypto,phoenix_cr47,pumpc4t,Pure8Nature,Pushpendra Tech,QHbrcht,QuantMeta,R89Capital,RaAr3s,radauteanu7,Rager,Ralvero,RaoulGMI,RealAllinCrypto,realdogen,RealDreylo,realtombibiyan,rektcapital,RektProof,revolut20,Rewkang,Robert183909710,Roman_Trading,Romeo Trades,RookieXBT,Route2FI,rovercrc,RunnerXBT,samhuber,SamuelXeus,SatoshiFlipper,SatoshiSniper_,saylor,ScopeProtocol,scottmelker,Sebastian Wols17,seth_fin,shahh,Sheldon_Sniper,Sheldon Evans,ShibalnuHodler,ShivaAnalytics,ShortsellerST,SilverBulletBTC,SilverWolfBtc,Simon Dixon Twitt,simulxxx,Slappjakke,smileycapital,SmolBullXBT,SolanaLegend,Sorunsalelliton,SpeakerPelosi,Stacker Satoshi,stackhodler,StockmoneyL,Stows Trading,Sunfire1126,TATrader_Alan,TechDev_52,teh MoonwalkeR,teknikcihoca,Tether Tendies,Thanefield Res,The_Airmass,The_Bogfather,thearreatsummit,TheBon_Scott,thebrianjung,The Crowtrades,TheCryptoDev_,TheCryptoDog,TheCryptoLark,TheCryptoLemon,Thecryptolord_,thecryptomonk,thedefivillain,thedudeOne,TheDustyBC,THEFLASHTRADING,TheMarketDog,TheMCACrypto,TheMoon Carl,theo_crypto99,the ProjectBTC,therationalroot,TheRealPlanC,The Trading Tank,thisisindeed,thisisksa,ThisIsNuse,Thorshammergems,thoughtfultrade,timothy_musick,ToniGhinea,tonythebullBTC,top7ico,Trader_Jibon,Trader_XO,trader1sz,traderdaye,TraderKoz,Tradermayne,traderview2,Trading Thomas3,TrueCrypto28,twojewoda,TXWestCapital,TylerSCrypto,Ungovernable_io,unusual_whales,ValCoins,vanessadefi,VegetaCrypto1,vemutlu,VentureCoinist,VirtualBacon0x,Vitalik Buterin,VolumeLeaders,vsadkovv,wabuffo,wacy_time1,Wallstreet bnb,Washigorira,WatcherGuru,WClementelll,Web3Niels,Web3Quant,Wills Outlook,wiseadvicesumit,WiseCrypto_,wongkim728,woonomic,WuBlockchain,wukong2021,XMaximist,XRPcryptowolf,Yakuzaincrypto,yourfriendandy,zachxbt,Zeneca,zerohedge,ZeroHedge_,zhusu,ZssBecker`;
+        const categories = ['Trader', 'Analyst', 'Influencer', 'Developer'];
+        const statuses = ['Active', 'Inactive'];
+        const niches = ['Altcoin Gems', 'BTC Maximalist', 'DeFi Degen', 'NFTs', 'Technical Analysis'];
+
+        const kolData = rawData.split(',').map((name, index) => ({
+            id: index,
+            name: name.trim().replace(/_/g, ' '),
+            category: categories[Math.floor(Math.random() * categories.length)],
+            status: statuses[Math.floor(Math.random() * statuses.length)],
+            followers: `${(Math.random() * 500).toFixed(1)}K`,
+            engagement: `${(Math.random() * 5).toFixed(2)}%`,
+            niche: niches[Math.floor(Math.random() * niches.length)],
+            twitterUrl: `https://twitter.com/${name.trim()}`
+        }));
+
+        // --- DOM ELEMENTS ---
+        const searchInput = document.getElementById('search-input');
+        const resultsContainer = document.getElementById('results-container');
+        const resultsBody = document.getElementById('results-body');
+        const noResultsDiv = document.getElementById('no-results');
+        const modal = document.getElementById('kol-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalContent = document.getElementById('modal-content');
+        const modalCloseBtn = document.getElementById('modal-close-btn');
+
+        // --- FUNCTIONS ---
+
+        function renderTable(dataToRender) {
+            resultsBody.innerHTML = ''; 
+            noResultsDiv.classList.toggle('hidden', dataToRender.length > 0);
+            resultsBody.classList.toggle('hidden', dataToRender.length === 0);
+
+            dataToRender.forEach(kol => {
+                const row = document.createElement('tr');
+                row.className = 'hover:bg-brand-light transition';
+                const statusClass = kol.status === 'Active' ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-400';
+                const statusDotClass = kol.status === 'Active' ? 'text-green-400' : 'text-gray-500';
+
+                row.innerHTML = `
+                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">${kol.name}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">${kol.category}</td>
+                    <td class="whitespace-nowrap px-3 py-4 text-sm">
+                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
+                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 ${statusDotClass}" fill="currentColor" viewBox="0 0 8 8">
+                                <circle cx="4" cy="4" r="3" />
+                            </svg>
+                            ${kol.status}
+                        </span>
+                    </td>
+                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
+                        <button data-id="${kol.id}" class="info-btn" title="View details for ${kol.name}">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-brand-accent-purple hover:text-brand-accent-pink transition pointer-events-none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+                        </button>
+                    </td>
+                `;
+                resultsBody.appendChild(row);
+            });
+        }
+
+        function handleSearch() {
+            const searchTerm = searchInput.value.toLowerCase();
+
+            if (searchTerm.length === 0) {
+                resultsContainer.classList.add('hidden');
+                return;
+            }
+            
+            resultsContainer.classList.remove('hidden');
+            const filteredData = kolData.filter(kol => kol.name.toLowerCase().includes(searchTerm));
+            renderTable(filteredData);
+        }
+
+        function showModal(kolId) {
+            const kol = kolData.find(k => k.id === parseInt(kolId));
+            if (!kol) return;
+
+            modalTitle.textContent = kol.name;
+            modalContent.innerHTML = `
+                <p><strong class="font-medium text-gray-100">Followers:</strong> ${kol.followers}</p>
+                <p><strong class="font-medium text-gray-100">Engagement:</strong> ${kol.engagement}</p>
+                <p><strong class="font-medium text-gray-100">Primary Niche:</strong> ${kol.niche}</p>
+                <p><strong class="font-medium text-gray-100">Twitter:</strong> <a href="${kol.twitterUrl}" target="_blank" class="text-brand-accent-pink hover:underline">${kol.twitterUrl.replace('https://', '')}</a></p>
+            `;
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+
+        // --- EVENT LISTENERS ---
+        searchInput.addEventListener('keyup', handleSearch);
+        
+        resultsBody.addEventListener('click', (event) => {
+            const infoButton = event.target.closest('.info-btn');
+            if (infoButton) {
+                const kolId = infoButton.dataset.id;
+                showModal(kolId);
+            }
+        });
+
+        modalCloseBtn.addEventListener('click', hideModal);
+        modal.addEventListener('click', (event) => {
+            if (event.target === modal) {
+                hideModal();
+            }
+        });
+
+        // --- INITIAL RENDER ---
+        // Table is now hidden by default and will only show on search.
+    </script>
+</body>
+</html>
