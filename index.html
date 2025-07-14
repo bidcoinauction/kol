@@ -3,222 +3,414 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>KOL Directory Search</title>
+    <title>WiseOne Presentation</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <script>
-        // Customizing Tailwind theme to add the new colors
-        tailwind.config = {
-            theme: {
-                extend: {
-                    colors: {
-                        'brand-dark': '#1a0f2a',
-                        'brand-med': '#2a1a42',
-                        'brand-light': '#3c2c5c',
-                        'brand-accent-purple': '#8a42f5',
-                        'brand-accent-pink': '#e539f5',
-                    }
-                }
-            }
-        }
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --color-bg: #0D0B14;
+            --color-surface: #13111B;
+            --color-card: #1A1823;
+            --color-border: #2C2A37;
+            --color-text-primary: #FFFFFF;
+            --color-text-secondary: #A0A0A0;
+            --color-purple-light: #C879FF;
+            --color-purple-dark: #9B51E0;
+        }
         body {
             font-family: 'Inter', sans-serif;
+            background-color: var(--color-bg);
+            color: var(--color-text-primary);
         }
-        #kol-modal {
-            transition: opacity 0.3s ease;
+        .slide {
+            display: none;
+            min-height: 85vh;
+            opacity: 0;
+            transition: opacity 0.7s ease-in-out;
+            position: absolute;
+            width: 100%;
+            left: 0;
+            top: 0;
+            padding: 1rem;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+        }
+        .slide.active {
+            display: flex;
+            opacity: 1;
+            position: relative;
+        }
+        .slide-container {
+            position: relative;
+            width: 100%;
+            min-height: 85vh;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+        }
+        .gradient-text {
+            background: linear-gradient(to right, var(--color-purple-light), var(--color-purple-dark));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .card {
+            background-color: var(--color-card);
+            border: 1px solid var(--color-border);
+            border-radius: 1rem;
+            padding: 2rem;
+            height: 100%;
+        }
+        .primary-button {
+             background: linear-gradient(to right, var(--color-purple-light), var(--color-purple-dark));
+             color: var(--color-text-primary);
+        }
+        .primary-button:hover {
+            opacity: 0.9;
+        }
+        .secondary-button {
+            background-color: var(--color-card);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+        }
+        .secondary-button:hover {
+            background-color: var(--color-border);
         }
     </style>
 </head>
-<body class="bg-brand-dark text-gray-200">
+<body class="flex flex-col items-center justify-center min-h-screen p-4 sm:p-6 lg:p-8">
 
-    <div class="container mx-auto p-4 sm:p-6 lg:p-8">
-        <!-- Header Section -->
-        <div class="mb-8 text-center">
-            <h1 class="text-4xl font-bold text-white">KOL Directory Search</h1>
-            <p class="mt-2 text-gray-400">Find a Key Opinion Leader (KOL) from our curated list.</p>
-        </div>
+    <div class="w-full max-w-7xl mx-auto bg-surface rounded-2xl shadow-2xl overflow-hidden border border-border">
+        <main class="p-4 sm:p-8 md:p-12">
+            <div id="slide-container" class="slide-container">
+                <!-- Slide 1: Title -->
+                <div id="slide-1" class="slide active text-center">
+                    <h1 class="text-5xl md:text-7xl font-black gradient-text tracking-tight">WiseOne</h1>
+                    <h2 class="mt-4 text-2xl md:text-3xl font-bold text-text-primary">The Premier Influencer Audit & Performance Platform</h2>
+                    <p class="mt-6 text-lg md:text-xl text-text-secondary">Stop Guessing. Start Knowing. We replace vanity metrics with verifiable proof of impact.</p>
+                </div>
 
-        <!-- Search Section -->
-        <div class="bg-brand-med p-6 rounded-xl shadow-lg border border-brand-light">
-            <div>
-                <label for="search-input" class="block text-sm font-medium text-gray-300 mb-2">Enter name</label>
-                <input type="text" id="search-input" placeholder="Enter name, handle, etc." class="w-full px-4 py-2 bg-brand-light border border-brand-accent-purple rounded-lg text-white placeholder-gray-400 focus:ring-2 focus:ring-brand-accent-pink focus:border-brand-accent-pink transition">
-            </div>
-        </div>
-
-        <!-- Results Table Section (Initially Hidden) -->
-        <div id="results-container" class="mt-8 flow-root hidden">
-            <div class="-mx-4 -my-2 overflow-x-auto sm:-mx-6 lg:-mx-8">
-                <div class="inline-block min-w-full py-2 align-middle sm:px-6 lg:px-8">
-                    <div class="overflow-hidden shadow-lg ring-1 ring-black ring-opacity-5 sm:rounded-lg">
-                        <table class="min-w-full divide-y divide-brand-light">
-                            <thead class="bg-brand-med">
-                                <tr>
-                                    <th scope="col" class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-white sm:pl-6">Name</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Category</th>
-                                    <th scope="col" class="px-3 py-3.5 text-left text-sm font-semibold text-white">Status</th>
-                                    <th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-                                        <span class="sr-only">Details</span>
-                                    </th>
-                                </tr>
-                            </thead>
-                            <tbody id="results-body" class="divide-y divide-brand-light bg-brand-med">
-                                <!-- JS will populate this -->
-                            </tbody>
-                        </table>
-                         <div id="no-results" class="hidden text-center py-12 px-6 bg-brand-med">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="mx-auto h-12 w-12 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1">
-                              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                            <h3 class="mt-2 text-lg font-medium text-white">No results found</h3>
-                            <p class="mt-1 text-sm text-gray-400">Your search did not match any KOLs. Try searching for something else.</p>
+                <!-- Slide 2: The Problem -->
+                <div id="slide-2" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-10">Are You Flying Blind?</h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">The Fear of Fraud</h3>
+                            <p class="text-text-secondary">Your budget is bleeding out on ghost followers and botted engagement. Can you afford to keep guessing?</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 17h8m0 0V9m0 8l-8-8-4 4-6-6"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">The Risk of Ruin</h3>
+                            <p class="text-text-secondary">A partnership with the wrong influencer can destroy your brand's reputation overnight. Is that a risk you're willing to take?</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                             <svg class="w-16 h-16 mb-4 text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12H9m12 0a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">The Danger of Deception</h3>
+                            <p class="text-text-secondary">Without verifiable data, you can't prove your marketing works. How long until your stakeholders lose faith?</p>
                         </div>
                     </div>
                 </div>
-            </div>
-        </div>
-    </div>
 
-    <!-- KOL Details Modal -->
-    <div id="kol-modal" class="fixed inset-0 bg-black bg-opacity-70 overflow-y-auto h-full w-full hidden z-50">
-        <div class="relative top-20 mx-auto p-5 border border-brand-accent-purple w-full max-w-md shadow-lg rounded-xl bg-brand-med">
-            <div class="mt-3 text-center">
-                <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-brand-light mb-4">
-                    <svg class="h-6 w-6 text-brand-accent-pink" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
-                </div>
-                <h3 class="text-lg leading-6 font-medium text-white" id="modal-title">KOL Details</h3>
-                <div class="mt-4 px-7 py-3">
-                    <div id="modal-content" class="text-sm text-gray-300 space-y-2 text-left">
-                        <!-- JS will populate this -->
+                <!-- Slide 3: The Solution -->
+                <div id="slide-3" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-10">The Solution: <span class="gradient-text">Real Impact Verification</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl">
+                         <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-color-purple-light" viewBox="0 0 32 32" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                <circle cx="16" cy="16" r="2.5"></circle><circle cx="16" cy="6" r="2"></circle><circle cx="16" cy="26" r="2"></circle><circle cx="6" cy="16" r="2"></circle><circle cx="26" cy="16" r="2"></circle><circle cx="9.9" cy="9.9" r="2"></circle><circle cx="22.1" cy="22.1" r="2"></circle><circle cx="9.9" cy="22.1" r="2"></circle><circle cx="22.1" cy="9.9" r="2"></circle>
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2">Proprietary AI</h3>
+                            <p class="text-text-secondary">Detect fake engagement and track historical performance with unmatched accuracy.</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">Actionable Data</h3>
+                            <p class="text-text-secondary">Move beyond vanity metrics to verifiable ROI and make informed decisions.</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                           <svg class="w-16 h-16 mb-4 text-color-purple-light" viewBox="0 0 50 45" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M26.3158 31.9167C26.3158 32.5481 25.9195 33.3958 25.2105 33.75L12.1053 41.25C11.0526 41.875 9.63158 41.0278 9.63158 39.7917V24.5C9.63158 23.8681 10.0278 23.0208 10.7368 22.6667L23.8421 15.1667C24.8947 14.5417 26.3158 15.3889 26.3158 16.625V31.9167Z" stroke="currentColor" stroke-width="3"></path>
+                                <path d="M40.3684 22.6667L27.2632 15.1667C26.2105 14.5417 24.7895 15.3889 24.7895 16.625V31.9167C24.7895 32.5481 25.1857 33.3958 25.8947 33.75L38.9999 41.25C40.0526 41.875 41.4737 41.0278 41.4737 39.7917V24.5C41.4737 23.8681 41.0774 23.0208 40.3684 22.6667Z" stroke="currentColor" stroke-width="3"></path>
+                                <path d="M33.3421 3.75L20.2368 11.25C19.1842 11.875 19.1842 13.375 20.2368 14L33.3421 21.5C34.3947 22.125 35.8158 21.2778 35.8158 20.0417V5.16667C35.8158 3.93056 34.3947 3.125 33.3421 3.75Z" stroke="currentColor" stroke-width="3"></path>
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2">Trust Ecosystem</h3>
+                            <p class="text-text-secondary">A secure environment where projects, agencies, and KOLs collaborate confidently.</p>
+                        </div>
                     </div>
                 </div>
-                <div class="items-center px-4 py-3">
-                    <button id="modal-close-btn" class="px-4 py-2 bg-brand-accent-pink text-white font-semibold rounded-lg hover:bg-opacity-80 w-full transition">
-                        Close
+
+                <!-- Slide 4: KOL Impact -->
+                <div id="slide-4" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-4"><span class="gradient-text">KOL IMPACT</span></h2>
+                    <p class="text-center text-lg text-text-secondary mb-10">Quantitative & Qualitative Analysis On Any KOL</p>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-6xl">
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Performance Tracking</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Audience Analysis</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Content Analysis</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Bot Detection</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Sentiment Analysis</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">ROI Calculation</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Deleted Tweet Tracking</h3></div>
+                        <div class="card text-center items-center justify-center flex p-4"><h3 class="font-semibold text-base md:text-lg">Competitor Comparison</h3></div>
+                    </div>
+                </div>
+                
+                <!-- Slide 5: How We Do It -->
+                <div id="slide-5" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-10">How We Do It: <span class="gradient-text">Our Hybrid Analysis Engine</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl">
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 7v10m16-10v10M8 7v10m4-10v10m4-10v10M4 7h16M4 17h16"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">1. Quantitative Data Aggregation</h3>
+                            <p class="text-text-secondary">We gather millions of data points, including follower history, engagement rates, and performance metrics, to build a solid numerical foundation.</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">2. Qualitative AI Analysis</h3>
+                            <p class="text-text-secondary">Our AI models analyze the context, sentiment, and authenticity of content, transforming raw numbers into a nuanced understanding of true influence.</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                            <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">3. Verifiable Insights</h3>
+                            <p class="text-text-secondary">By combining both data types, we deliver a complete, verifiable picture of an influencer's impact, so you can make decisions with confidence.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 6: Your Strategic Advantage -->
+                <div id="slide-6" class="slide">
+                     <h2 class="text-3xl md:text-5xl font-bold text-center mb-12">Your <span class="gradient-text">Strategic Advantage</span></h2>
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+                        <div class="card flex flex-col text-center">
+                            <h3 class="text-2xl font-bold text-text-primary mb-4">Protect Your Investment</h3>
+                            <ul class="space-y-4 text-text-secondary text-lg flex-grow">
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span>Avoid fraudulent influencers & bot farms.</span></li>
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-red-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636"></path></svg><span>Mitigate reputational damage from risky partnerships.</span></li>
+                            </ul>
+                        </div>
+                        <div class="card flex flex-col text-center">
+                            <h3 class="text-2xl font-bold text-text-primary mb-4">Maximize Your Budget</h3>
+                            <ul class="space-y-4 text-text-secondary text-lg flex-grow">
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"></path></svg><span>Eliminate wasted spend on ineffective campaigns.</span></li>
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-green-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6"></path></svg><span>Optimize campaign ROI with data-driven decisions.</span></li>
+                            </ul>
+                        </div>
+                        <div class="card flex flex-col text-center">
+                            <h3 class="text-2xl font-bold text-text-primary mb-4">Accelerate Your Growth</h3>
+                            <ul class="space-y-4 text-text-secondary text-lg flex-grow">
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"></path></svg><span>Secure funding with verifiable performance data.</span></li>
+                                <li class="flex items-start text-left"><svg class="w-6 h-6 mr-3 text-blue-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.653-.28-1.25-.743-1.672M11 16v-2c0-.653.28-1.25.743-1.672M11 16c0 1.657 2.239 3 5 3s5-1.343 5-3m-5-4v-2c0-.653.28-1.25.743-1.672M11 12V4a4 4 0 00-8 0v8c0 .653-.28 1.25-.743 1.672M11 12h-1m-4 4h-1m-2-4h-1m12-4h-1m-4-4h-1m-4 4h-1m6-4h-1"></path></svg><span>Partner with high-impact influencers with confidence.</span></li>
+                            </ul>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Slide 7: Top 5 Benefits -->
+                <div id="slide-7" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-12">Top 5 Benefits of Using <span class="gradient-text">WiseOne</span></h2>
+                    <div class="w-full max-w-4xl space-y-6">
+                        <div class="card p-4 flex items-center"><span class="gradient-text font-bold text-4xl mr-6">1</span><p class="text-xl"><strong>Unshakeable Confidence:</strong> Make every marketing decision with the backing of verifiable, unbiased data.</p></div>
+                        <div class="card p-4 flex items-center"><span class="gradient-text font-bold text-4xl mr-6">2</span><p class="text-xl"><strong>Maximum ROI:</strong> Stop wasting money on fraudulent engagement with KOLs and allocate your budget for guaranteed impact.</p></div>
+                        <div class="card p-4 flex items-center"><span class="gradient-text font-bold text-4xl mr-6">3</span><p class="text-xl"><strong>Strategic Clarity:</strong> Understand the true sentiment and reach of your campaigns to refine your strategy.</p></div>
+                        <div class="card p-4 flex items-center"><span class="gradient-text font-bold text-4xl mr-6">4</span><p class="text-xl"><strong>Competitive Edge:</strong> Outmaneuver competitors by identifying high-performing influencers they've overlooked.</p></div>
+                        <div class="card p-4 flex items-center"><span class="gradient-text font-bold text-4xl mr-6">5</span><p class="text-xl"><strong>Effortless Reporting:</strong> Generate comprehensive, easy-to-understand reports to prove your marketing effectiveness.</p></div>
+                    </div>
+                </div>
+
+                <!-- Slide 8: Fake Influence (Moved) -->
+                <div id="slide-8" class="slide text-center">
+                    <h2 class="text-3xl md:text-5xl font-bold mb-6">This Is How Easy It Is to Fake Influence</h2>
+                    <p class="text-text-secondary mb-8 max-w-2xl mx-auto">The video below demonstrates how easily engagement metrics can be manipulated, creating a deceptive appearance of influence and reach.</p>
+                    <div class="w-full max-w-3xl aspect-video bg-black rounded-lg overflow-hidden shadow-lg border border-border">
+                        <video controls class="w-full h-full" poster="https://placehold.co/1920x1080/0D0B14/C879FF?text=Click+to+Play+Video">
+                            <source src="https://updatedcardscript.standard.us-east-1.oortstorages.com/anotherinfluencer%20%281%29.mov" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                </div>
+                
+                <!-- Slide 9: The Old Way vs. The WiseOne Way -->
+                <div id="slide-9" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-10">The Old Way vs. The <span class="gradient-text">WiseOne Way</span></h2>
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 w-full max-w-6xl items-stretch">
+                        <div class="card flex flex-col">
+                            <h3 class="text-xl font-bold text-center mb-4 text-red-400">The Old Way: Data Overload</h3>
+                            <div class="bg-gray-800/50 p-4 rounded-lg flex-grow">
+                                <table class="w-full text-left text-sm whitespace-nowrap">
+                                    <thead class="text-text-secondary">
+                                        <tr>
+                                            <th class="p-2 font-normal">Nickname</th>
+                                            <th class="p-2 font-normal text-right">Views</th>
+                                            <th class="p-2 font-normal text-right">Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody class="text-text-primary">
+                                        <tr class="border-t border-border/50"><td class="p-2">MovistarRe</td><td class="p-2 text-right">30,000</td><td class="p-2 text-right">$1,200</td></tr>
+                                        <tr class="border-t border-border/50"><td class="p-2">Amro Shihada</td><td class="p-2 text-right">8,700</td><td class="p-2 text-right">$1,800</td></tr>
+                                        <tr class="border-t border-border/50 bg-purple-900/30"><td class="p-2 font-bold">CryptoSoulz</td><td class="p-2 text-right font-bold">7,000</td><td class="p-2 text-right font-bold">$2,600</td></tr>
+                                        <tr class="border-t border-border/50"><td class="p-2">defizard</td><td class="p-2 text-right">3,000</td><td class="p-2 text-right">$900</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                        <div class="card border-2 border-color-purple-light flex flex-col">
+                            <h3 class="text-xl font-bold text-center mb-4 text-color-purple-light">The WiseOne Way: Actionable Clarity</h3>
+                            <div class="space-y-3 flex-grow">
+                                <h4 class="text-lg font-bold">KOL Report: CryptoSoulz</h4>
+                                <div class="p-3 bg-card/50 rounded-md flex justify-between items-center"><span class="text-text-secondary">Reported Engagement:</span><span class="font-bold text-lg text-red-400">17.6%</span></div>
+                                <div class="p-3 bg-card/50 rounded-md flex justify-between items-center"><span class="text-text-secondary">Verified Engagement:</span><span class="font-bold text-lg text-green-400">4.2%</span></div>
+                                <div class="p-3 bg-card/50 rounded-md flex justify-between items-center"><span class="text-text-secondary">Bot Activity Risk:</span><span class="font-bold text-lg text-red-400">High (65%)</span></div>
+                                <div class="p-3 bg-card/50 rounded-md flex justify-between items-center"><span class="text-text-secondary">True Reach Estimate:</span><span class="font-bold text-lg text-green-400">~12,500</span></div>
+                            </div>
+                            <div class="mt-4 pt-4 border-t border-border text-center">
+                                <h4 class="text-lg font-bold text-red-400">Verdict: High Risk, Low True ROI</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 10: Get Started Today -->
+                <div id="slide-10" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-10">Index Today & <span class="gradient-text">Get Started</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl">
+                        <div class="card text-center flex flex-col items-center">
+                             <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">First Report in 24 Hours</h3>
+                            <p class="text-text-secondary">Index today to get started and receive your first comprehensive report within 24 hours.</p>
+                        </div>
+                        <div class="card text-center flex flex-col items-center">
+                           <svg class="w-16 h-16 mb-4 text-color-purple-light" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h5M20 20v-5h-5M4 4l5 5M20 20l-5-5"></path></svg>
+                            <h3 class="text-xl font-bold mb-2">Daily Campaign Updates</h3>
+                            <p class="text-text-secondary">Receive daily updates on your project at 8am EST, keeping track of all changes during your campaign.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Slide 11: Join the Ecosystem -->
+                <div id="slide-11" class="slide">
+                    <h2 class="text-3xl md:text-5xl font-bold text-center mb-12">Join the <span class="gradient-text">Trust Ecosystem</span></h2>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-8 w-full max-w-5xl">
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-bold text-text-primary mb-6">For Influencers & KOLs</h3>
+                            <ul class="space-y-4 text-text-secondary text-lg">
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg><span><strong class="font-semibold text-text-primary">Free Profile Audit:</strong> Get your certification badge.</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path></svg><span><strong class="font-semibold text-text-primary">Priority Referrals:</strong> Connect with premium agencies/projects.</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v.01"></path></svg><span><strong class="font-semibold text-text-primary">Transparency Premium:</strong> Command 20-50% higher fees.</span></li>
+                            </ul>
+                        </div>
+                        <div class="card p-6">
+                            <h3 class="text-2xl font-bold text-text-primary mb-6">For Brands & Agencies</h3>
+                            <ul class="space-y-4 text-text-secondary text-lg">
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg><span><strong class="font-semibold text-text-primary">Curated KOL Marketplace:</strong> Access 200+ pre-audited KOLs.</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 20.917l9 2.083 9-2.083a12.02 12.02 0 00-4.382-9.975z"></path></svg><span><strong class="font-semibold text-text-primary">Campaign Risk Shield:</strong> Reduce client disputes significantly.</span></li>
+                                <li class="flex items-start"><svg class="w-6 h-6 mr-3 text-color-purple-light flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.148-6.014a1.76 1.76 0 011.164-2.298l5.545-1.98a1.76 1.76 0 012.298 1.164l2.148 6.014a1.76 1.76 0 01-.592 3.417l-5.545 1.98a1.76 1.76 0 01-2.298-1.164v-.002z"></path></svg><span><strong class="font-semibold text-text-primary">Co-Marketing Benefits:</strong> Gain visibility with logo placement.</span></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 12: Pricing -->
+                <div id="slide-12" class="slide">
+                     <h2 class="text-3xl md:text-5xl font-bold text-center mb-12">Pricing <span class="gradient-text">Designed For Scale</span></h2>
+                     <div class="grid grid-cols-1 md:grid-cols-3 gap-8 w-full max-w-6xl">
+                        <div class="card flex flex-col">
+                            <h3 class="text-2xl font-bold text-text-primary">On-Demand KOL Audits</h3>
+                            <p class="text-4xl font-bold my-4">$39<span class="text-lg font-medium text-text-secondary">/report</span></p>
+                            <p class="text-text-secondary mb-6 flex-grow">Deep-dive analyses of 500+ pre-vetted Tier 1 & 2 KOLs. Verify real influence before you spend a dime.</p>
+                            <button class="secondary-button w-full font-bold py-3 px-6 rounded-lg transition-colors mt-auto">Get Report</button>
+                        </div>
+                        <div class="card flex flex-col border-2 border-color-purple-light relative">
+                             <div class="absolute top-0 right-6 -mt-4 bg-color-purple-light text-color-bg text-sm font-bold px-3 py-1 rounded-full">Most Popular</div>
+                            <h3 class="text-2xl font-bold text-text-primary">Project Indexing</h3>
+                            <p class="text-4xl font-bold my-4">$299<span class="text-lg font-medium text-text-secondary">/month</span></p>
+                            <p class="text-text-secondary mb-6 flex-grow">End-to-end project monitoring: real-time KOL attribution, market shifts, and sentiment analysis.</p>
+                            <button class="primary-button w-full font-bold py-3 px-6 rounded-lg transition-colors mt-auto">Choose Plan</button>
+                        </div>
+                        <div class="card flex flex-col relative">
+                             <div class="absolute top-0 right-6 -mt-4 bg-yellow-400 text-black text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider">Limited Time</div>
+                            <h3 class="text-2xl font-bold text-text-primary">KOL Indexing & Audit</h3>
+                            <p class="text-4xl font-bold my-4"><span class="text-2xl text-text-secondary line-through mr-2">$149</span>$99</p>
+                            <p class="text-text-secondary mb-6 flex-grow">Get your profile audited and indexed. Showcase your verified data to projects and agencies with this one-time introductory offer.</p>
+                            <button class="secondary-button w-full font-bold py-3 px-6 rounded-lg transition-colors mt-auto">Claim $99 Offer</button>
+                        </div>
+                     </div>
+                </div>
+
+                <!-- Slide 13: Call to Action -->
+                <div id="slide-13" class="slide text-center">
+                    <h2 class="text-5xl md:text-7xl font-black gradient-text tracking-tight">Get In Touch With Our Team</h2>
+                    <p class="mt-4 text-xl md:text-2xl text-text-secondary">Ready to uncover the truth behind your data?</p>
+                    <button class="primary-button mt-8 font-bold py-4 px-10 rounded-lg transition-all duration-300 text-lg transform hover:scale-105">
+                        Contact Us
                     </button>
                 </div>
+
             </div>
-        </div>
+        </main>
+
+        <!-- Navigation -->
+        <footer class="flex justify-between items-center p-4 bg-surface border-t border-border">
+            <button id="prevBtn" class="secondary-button font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Previous
+            </button>
+            <div id="slide-indicator" class="text-text-secondary text-sm font-medium"></div>
+            <button id="nextBtn" class="primary-button font-bold py-2 px-5 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
+        </footer>
     </div>
 
-
     <script>
-        // --- DATA ---
-        const rawData = `_CryptoManny,_Richard Teng,_traderkane,OxBclub,OxBender,OxDonald Gao,OxHustlepedia,Oxjaypeg,Oxreflection,OxRoronoa Zoro,Oxshowmaker,Ox Thoor,OxWenMoon,10_FORTYONE,100trillion USD,1cryptomama,5_0Trading,52kskew,5starIDO,8R4NDO,aakaashyadav,Adithia Kusno,alanrog3,alchemy_invest,Alejandro_XBT,AlemzadehC,ali_charts,alistairmilne,alphatrends,alshami_crypto,Altcoin_Gold,AltcoinDailyio,Altcoin Gordon,AltcoinPsycho,altcoinrookie,AltcoinSherpa,AltCryptoGems,alts_architect,Anbessa100,Andrea Capellin4,andreswifitv,AndrewCryptoHQ,Andy_Cryptoo,ardizor,ashcryptoreal,Assets Norris,Axel bitblaze69,balajis,bbands,BCBacker,beeteeceeee,bentodar,BergMilton,bgarlinghouse,BigCheds,Bitboy_Crypto,BitQua,blackbeardXBT,blackwidowbtc,blazing420s,Bleeding_Crypto,Bleeves Crypto,blknoiz06,BlockBonnieC,blockchainedbb,BlockChainGods_,BlocksNThoughts,Bluntz_Capital,Bobby_1111888,BobLoukas,Boring Sleuth,boxmining,bradmillscan,BrainBroCrypto,brandank_cr,bravosresearch,Breedlove22,brian_armstrong,BrianDEvans,BTC_Archive,btc_charlie,BTC_JackSparrow,btcoinmag,BudhilVyas,bull_bnb,BullChain,BullChinaCN,Bullrun_Gravano,bycoinhunter,ByzGeneral,Cameronfous,cantonmeow,CaptToblerone,CarpeNoctom,Castillo Trading,CathieDWood,CC2Ventures,ChainLink God,charliebilello,ChicoCrypto,Chifoi Cristian,chirocrypto,chrono_chartist,Coachkcrypto,coffeebreak_YT,coinbureau,coinmamba,coinmuhendisim,CoinnCorner,Coins_Kid,CoinWOfficial,Cold BloodShill,conorfkenny,cousincrypt0,craigscoinpurse,CredibleCrypto,Croesus_BTC,CrypNuevo,Cryptech_Sam,crypto_banter,crypto_birb,crypto_bitlord7,Crypto_Ed_NL,Crypto_Educator,crypto_linn,Cryptoamanclub,CryptoBusy,CryptoCapo_,CryptoCred,CryptoDaku_,CryptoDiffer,CryptoDonAlt,CryptoErwinNL,CryptoFNewsDE,CryptoGenzo,CryptoGirlNova,CryptoGodJohn,cryptojack,CryptoKaduna,CryptoKaleo,CryptoKans,CryptoKingKeyur,CryptoLycus,CryptoLyonnais,cryptomanran,CryptoMichNL,cryptomocho,CryptoNagato,CryptoNewsXBT,CryptooELITES,CryptoPoseidonn,cryptorecruitr,CryptoReviewing,CryptoRyan17,CryptosBatman,CryptoShadowOff,cryptoskullx,CryptosR_Us,Crypto Tea_,Crypto Thannos,Crypto Tony,cryptotrader85,CryptoVikings07,CryptoVonDoom,CryptoWendyO,CryptoWizardd,CryptoWorldJosh,cyberspace2140,cz_binance,Daan Crypto,daaniyaan,DaCryptoAce,DaCryptoGeneral,DailyCrypto Trad,DaSheriffCrypto,DaveCrypto91,David_Tracey,DavidCoxRJ,DavidOnCrypto_,Davincij 15,davthewave,DeanChristians,Debussy 100,decodejar,DefiSquared,DegenSpartan,devchart,Diditaihuttu,DMTLAND_,Doctor_Magic_,docXBT,DrProfitCrypto,DylanLeClair_,effervescence_o,el_crypto_prof,eliz883,elliotrades,EmperorBTC,ericcryptoman,EricTrump,ero_crypto,EvanLuthra,evolveweb3,ExitLiqCapital,expert_kripto,FadiD86,fewseethis,financial index,follis,FossGregfoss,FusionptCapital,fwielanier,gainzy222,gandalfcryptto,ganymede_0x,garyblack00,GCRClassic,gem_detecter,gem_insider,GertvanLagen,GhostMMXM,giantcutie777,GiganticRebirth,Globalflows,GoingParabolic,Govanisher,GRDecter,hackapreneur,hc_trades,healthy_pockets,HenrikZeberg,HerroCrypto,High StakesCap,House OfCrypto3,Hsaka Trades,i_am_jackis,iam_lil_ben,lamRamen Panda,lamZerolka,ibcig,Iced Knife,Iced Trader,IDO_Insights,immrape,ImNot The Wolf,inancsalman,Income Sharks,inmortalcrypto,intocryptoverse,intuitio_,invest_answers,IvanOnTech,JA_Maartun,jackminingbtc,Jake_Wujastyk,JasonCryptoFTW,jasonpizzino,jaydee_757,JC_Investment,JesusChris00,jimcramer,JoeCarlasare,JoelKatz,JoeParys,JohalMiles,JohnnyZcash,joshistrading,JRNYcrypto,Justin BennettFX,justinsuntron,KAPOTHEGOAT01,karl_0x,Kellykellam,KenCharts,KevinSvenson_,ki_young_ju,kiantrades,KILA_WHALE,Kingpincrypto12,Kirti_Azad_,KmanuS88,kmoney_69,KongBTC,KoroushAK,KPGlobal Charts,kriptomete_,KrownCryptoCave,Kryptolnsider1,ksicrypto,Kucoinmaster777,kwantxbt,kyle_chasse,kyledoops,LadyofCrypto1,Lady TraderRa,langeriuseth,LayerAlpha,LeaksBlockchain,Leonardo_CMNT,level941,Lina_Trades,Imkfun,LomahCrypto,London RealTV,lookonchain,LordDurden,LowCapB,LPCapitalChi,lukebelmar,MacnBTC,MacroCharts,MacroCRG,MarioNawfal,MariusCrypto,mark_cullen,MarketMobsterUK,MarketsInternal,MartiniGuyYT,martypartymusic,MartyXBT,MatthewHyland_,mericfi,Merlijn Trader,mesgo_,michaeljburry,MichaelSuppo,MichaelXBT,milesdeutscher,Mill_Mentor,misterrcrypto,mithcoons,MMCrypto,mominsaqib,Moneytaur_,Moon Overlord,mobymedia,Mr_Derivatives,Mrbullemmy,MrX_Crypto,MuroCrypto,murtaza,MustStopMurad,Namzes_G,Nebraskangooner,Negentropic_,Nekoz Tek,nftboi_,NikkiSixx_7,notEezzy,Nstr_tj,NukeCapital,NXS_Blade Runner,olvelez007,Osemka8,ourcryptotalk,Overdose_Al,PABL0_1989,panamaXBT,PARABOLIT,ParrotCapital,paulbarron,Pentosh 1,PeterSchiff,PhilakoneCrypto,phoenix_cr47,pumpc4t,Pure8Nature,Pushpendra Tech,QHbrcht,QuantMeta,R89Capital,RaAr3s,radauteanu7,Rager,Ralvero,RaoulGMI,RealAllinCrypto,realdogen,RealDreylo,realtombibiyan,rektcapital,RektProof,revolut20,Rewkang,Robert183909710,Roman_Trading,Romeo Trades,RookieXBT,Route2FI,rovercrc,RunnerXBT,samhuber,SamuelXeus,SatoshiFlipper,SatoshiSniper_,saylor,ScopeProtocol,scottmelker,Sebastian Wols17,seth_fin,shahh,Sheldon_Sniper,Sheldon Evans,ShibalnuHodler,ShivaAnalytics,ShortsellerST,SilverBulletBTC,SilverWolfBtc,Simon Dixon Twitt,simulxxx,Slappjakke,smileycapital,SmolBullXBT,SolanaLegend,Sorunsalelliton,SpeakerPelosi,Stacker Satoshi,stackhodler,StockmoneyL,Stows Trading,Sunfire1126,TATrader_Alan,TechDev_52,teh MoonwalkeR,teknikcihoca,Tether Tendies,Thanefield Res,The_Airmass,The_Bogfather,thearreatsummit,TheBon_Scott,thebrianjung,The Crowtrades,TheCryptoDev_,TheCryptoDog,TheCryptoLark,TheCryptoLemon,Thecryptolord_,thecryptomonk,thedefivillain,thedudeOne,TheDustyBC,THEFLASHTRADING,TheMarketDog,TheMCACrypto,TheMoon Carl,theo_crypto99,the ProjectBTC,therationalroot,TheRealPlanC,The Trading Tank,thisisindeed,thisisksa,ThisIsNuse,Thorshammergems,thoughtfultrade,timothy_musick,ToniGhinea,tonythebullBTC,top7ico,Trader_Jibon,Trader_XO,trader1sz,traderdaye,TraderKoz,Tradermayne,traderview2,Trading Thomas3,TrueCrypto28,twojewoda,TXWestCapital,TylerSCrypto,Ungovernable_io,unusual_whales,ValCoins,vanessadefi,VegetaCrypto1,vemutlu,VentureCoinist,VirtualBacon0x,Vitalik Buterin,VolumeLeaders,vsadkovv,wabuffo,wacy_time1,Wallstreet bnb,Washigorira,WatcherGuru,WClementelll,Web3Niels,Web3Quant,Wills Outlook,wiseadvicesumit,WiseCrypto_,wongkim728,woonomic,WuBlockchain,wukong2021,XMaximist,XRPcryptowolf,Yakuzaincrypto,yourfriendandy,zachxbt,Zeneca,zerohedge,ZeroHedge_,zhusu,ZssBecker`;
-        const categories = ['Trader', 'Analyst', 'Influencer', 'Developer'];
-        const statuses = ['Active', 'Inactive'];
-        const niches = ['Altcoin Gems', 'BTC Maximalist', 'DeFi Degen', 'NFTs', 'Technical Analysis'];
+        document.addEventListener('DOMContentLoaded', () => {
+            // --- SLIDE NAVIGATION ---
+            const slides = document.querySelectorAll('.slide');
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+            const slideIndicator = document.getElementById('slide-indicator');
+            let currentSlide = 0;
+            const totalSlides = slides.length;
 
-        const kolData = rawData.split(',').map((name, index) => ({
-            id: index,
-            name: name.trim().replace(/_/g, ' '),
-            category: categories[Math.floor(Math.random() * categories.length)],
-            status: statuses[Math.floor(Math.random() * statuses.length)],
-            followers: `${(Math.random() * 500).toFixed(1)}K`,
-            engagement: `${(Math.random() * 5).toFixed(2)}%`,
-            niche: niches[Math.floor(Math.random() * niches.length)],
-            twitterUrl: `https://twitter.com/${name.trim()}`
-        }));
+            function showSlide(index) {
+                slides.forEach((slide) => {
+                    slide.classList.remove('active');
+                });
+                if (slides[index]) {
+                    slides[index].classList.add('active');
+                }
+                slideIndicator.textContent = `Slide ${index + 1} of ${totalSlides}`;
+                prevBtn.disabled = index === 0;
+                nextBtn.disabled = index === totalSlides - 1;
+            }
 
-        // --- DOM ELEMENTS ---
-        const searchInput = document.getElementById('search-input');
-        const resultsContainer = document.getElementById('results-container');
-        const resultsBody = document.getElementById('results-body');
-        const noResultsDiv = document.getElementById('no-results');
-        const modal = document.getElementById('kol-modal');
-        const modalTitle = document.getElementById('modal-title');
-        const modalContent = document.getElementById('modal-content');
-        const modalCloseBtn = document.getElementById('modal-close-btn');
-
-        // --- FUNCTIONS ---
-
-        function renderTable(dataToRender) {
-            resultsBody.innerHTML = ''; 
-            noResultsDiv.classList.toggle('hidden', dataToRender.length > 0);
-            resultsBody.classList.toggle('hidden', dataToRender.length === 0);
-
-            dataToRender.forEach(kol => {
-                const row = document.createElement('tr');
-                row.className = 'hover:bg-brand-light transition';
-                const statusClass = kol.status === 'Active' ? 'bg-green-500/20 text-green-300' : 'bg-gray-500/20 text-gray-400';
-                const statusDotClass = kol.status === 'Active' ? 'text-green-400' : 'text-gray-500';
-
-                row.innerHTML = `
-                    <td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-white sm:pl-6">${kol.name}</td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm text-gray-300">${kol.category}</td>
-                    <td class="whitespace-nowrap px-3 py-4 text-sm">
-                        <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusClass}">
-                            <svg class="-ml-0.5 mr-1.5 h-2 w-2 ${statusDotClass}" fill="currentColor" viewBox="0 0 8 8">
-                                <circle cx="4" cy="4" r="3" />
-                            </svg>
-                            ${kol.status}
-                        </span>
-                    </td>
-                    <td class="relative whitespace-nowrap py-4 pl-3 pr-4 text-right text-sm font-medium sm:pr-6">
-                        <button data-id="${kol.id}" class="info-btn" title="View details for ${kol.name}">
-                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="h-6 w-6 text-brand-accent-purple hover:text-brand-accent-pink transition pointer-events-none"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
-                        </button>
-                    </td>
-                `;
-                resultsBody.appendChild(row);
+            nextBtn.addEventListener('click', () => {
+                if (currentSlide < totalSlides - 1) {
+                    currentSlide++;
+                    showSlide(currentSlide);
+                }
             });
-        }
 
-        function handleSearch() {
-            const searchTerm = searchInput.value.toLowerCase();
-
-            if (searchTerm.length === 0) {
-                resultsContainer.classList.add('hidden');
-                return;
-            }
+            prevBtn.addEventListener('click', () => {
+                if (currentSlide > 0) {
+                    currentSlide--;
+                    showSlide(currentSlide);
+                }
+            });
             
-            resultsContainer.classList.remove('hidden');
-            const filteredData = kolData.filter(kol => kol.name.toLowerCase().includes(searchTerm));
-            renderTable(filteredData);
-        }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'ArrowRight') {
+                    nextBtn.click();
+                } else if (e.key === 'ArrowLeft') {
+                    prevBtn.click();
+                }
+            });
 
-        function showModal(kolId) {
-            const kol = kolData.find(k => k.id === parseInt(kolId));
-            if (!kol) return;
-
-            modalTitle.textContent = kol.name;
-            modalContent.innerHTML = `
-                <p><strong class="font-medium text-gray-100">Followers:</strong> ${kol.followers}</p>
-                <p><strong class="font-medium text-gray-100">Engagement:</strong> ${kol.engagement}</p>
-                <p><strong class="font-medium text-gray-100">Primary Niche:</strong> ${kol.niche}</p>
-                <p><strong class="font-medium text-gray-100">Twitter:</strong> <a href="${kol.twitterUrl}" target="_blank" class="text-brand-accent-pink hover:underline">${kol.twitterUrl.replace('https://', '')}</a></p>
-            `;
-            modal.classList.remove('hidden');
-        }
-
-        function hideModal() {
-            modal.classList.add('hidden');
-        }
-
-        // --- EVENT LISTENERS ---
-        searchInput.addEventListener('keyup', handleSearch);
-        
-        resultsBody.addEventListener('click', (event) => {
-            const infoButton = event.target.closest('.info-btn');
-            if (infoButton) {
-                const kolId = infoButton.dataset.id;
-                showModal(kolId);
-            }
+            showSlide(currentSlide);
         });
-
-        modalCloseBtn.addEventListener('click', hideModal);
-        modal.addEventListener('click', (event) => {
-            if (event.target === modal) {
-                hideModal();
-            }
-        });
-
-        // --- INITIAL RENDER ---
-        // Table is now hidden by default and will only show on search.
     </script>
 </body>
 </html>
